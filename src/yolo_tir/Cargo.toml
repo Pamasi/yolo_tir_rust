@@ -1,0 +1,35 @@
+[package]
+name = "yolo_tir"
+version = "0.0.1"
+authors =["Paolo Dimasi <paolo.dimasi@outlook.com>"]
+edition = "2021"
+
+
+# LIBRARY
+[lib]
+name = "yolo_onnx"
+path = "src/lib.rs"
+
+# EXECUTABLE CONFIGUTATION
+
+
+# LIBRARY REFERENCE
+[dependencies]
+# ROS
+rclrs = "*"
+rosidl_runtime_rs = "*"
+std_msgs = "*"
+vision_msgs = "*"
+
+# OTHER
+# ort is better supported than onnxruntime
+onnxruntime-sys= { version = "0.0.14", path = "../../../onnxruntime-rs/onnxruntime-sys" }
+onnxruntime = { version = "0.0.14", path = "../../../onnxruntime-rs/onnxruntime" }
+#handle idiomatic error
+anyhow = {version = "1", features = ["backtrace"]}
+ndarray = "0.15"
+tracing-subscriber = { version = "0.3", default-features = false, features = [ "env-filter", "fmt" ] }
+image = "0.24"
+show-image = { version = "0.13", features = [ "image", "raqote" ] }
+ureq = "2.1"
+tracing = "0.1"
