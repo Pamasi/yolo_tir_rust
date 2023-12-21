@@ -13,11 +13,13 @@
     <build_depend>rosidl_runtime_rs</build_depend>
     <build_depend>std_msgs</build_depend>
     <build_depend>vision_msgs</build_depend>
+    <build_depend>sensor_msgs</build_depend>
 
     <exec_depend>rclrs</exec_depend>
     <exec_depend>rosidl_runtime_rs</exec_depend>
     <exec_depend>std_msgs</exec_depend>
     <exec_depend>vision_msgs</exec_depend>
+    <exec_depend>sensor_msgs</exec_depend>
     <exec_depend>std_msgs</exec_depend>
 
     <export>

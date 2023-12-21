@@ -11,7 +11,9 @@ name = "yolo_onnx"
 path = "src/lib.rs"
 
 # EXECUTABLE CONFIGUTATION
-
+[[bin]]
+name = "image_publisher"
+path = "src/img_publisher.rs"
 
 # LIBRARY REFERENCE
 [dependencies]
@@ -20,6 +22,7 @@ rclrs = "*"
 rosidl_runtime_rs = "*"
 std_msgs = "*"
 vision_msgs = "*"
+sensor_msgs = "*"
 
 # OTHER
 # ort is better supported than onnxruntime
