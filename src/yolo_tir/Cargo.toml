@@ -7,7 +7,8 @@ edition = "2021"
 
 # LIBRARY
 [lib]
-name = "yolo_onnx"
+# name of the library should be the same of the module
+name = "box_info"
 path = "src/lib.rs"
 
 # EXECUTABLE CONFIGUTATION
@@ -31,6 +32,7 @@ onnxruntime = { version = "0.0.14", path = "/home/user/onnxruntime-rs/onnxruntim
 #handle idiomatic error
 anyhow = {version = "1", features = ["backtrace"]}
 ndarray = "0.15"
+ndarray-stats = "*"
 tracing-subscriber = { version = "0.3", default-features = false, features = [ "env-filter", "fmt" ] }
 image = "0.24"
 show-image = { version = "0.13", features = [ "image", "raqote" ] }

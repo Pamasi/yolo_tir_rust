@@ -6,17 +6,15 @@ pub struct BoxInfo{
     y1:f32,
     x2:f32,
     y2:f32,
-    score:f32,
-    label:usize
+    pub score:f32,
+    pub label:usize
 }
 
 impl Eq  for BoxInfo{}
 
 // TODO constants to a launch file
-const MODEL_PATH: &str = "param/best_seq_learn.onnx";
 const IMAGE_PATH: &str = "uav_view.jpg";
 
-const CLASS_LABEL: [&str; 4] =  ["person","bike","car","other vehicle"];
 impl Ord for BoxInfo{
     fn cmp(&self, other: &Self) -> Ordering {
 
@@ -48,11 +46,27 @@ impl PartialEq<Self> for BoxInfo{
 }
 
 impl BoxInfo{
-    fn new(x1:f32, y1:f32, x2:f32, y2:f32, score:f32, label:usize) -> Self {
+    pub fn new(x1:f32, y1:f32, x2:f32, y2:f32, score:f32, label:usize) -> Self {
         Self { x1, y1, x2, y2, score, label}
     }
 
-    fn nms(mut input_boxes:Vec<Self>, nms_threshold:f32) -> Vec<Self>{
+    pub fn width(&self) -> f32{
+        self.y2- self.y1
+    }
+    pub fn height(&self) -> f32{
+        self.x2- self.x1
+    }
+
+    pub fn x(&self) -> f32{
+        self.x2
+    }
+
+    pub fn y(&self) -> f32{
+        self.y2
+    }
+
+
+    pub fn nms(mut input_boxes:Vec<Self>, nms_threshold:f32) -> Vec<Self>{
         input_boxes.sort_by(|a, b| b.cmp(a));
         let v_area: Vec<f32> = input_boxes
             .iter()
@@ -91,3 +105,5 @@ impl BoxInfo{
         out_boxes
     }
 }
+
+
