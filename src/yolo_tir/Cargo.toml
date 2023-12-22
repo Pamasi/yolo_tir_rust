@@ -25,9 +25,9 @@ vision_msgs = "*"
 sensor_msgs = "*"
 
 # OTHER
-# ort is better supported than onnxruntime
-onnxruntime-sys= { version = "0.0.14", path = "../../../onnxruntime-rs/onnxruntime-sys" }
-onnxruntime = { version = "0.0.14", path = "../../../onnxruntime-rs/onnxruntime" }
+# change the path according to your   src
+onnxruntime-sys= { version = "0.0.14", path = "/home/user/onnxruntime-rs/onnxruntime-sys" }
+onnxruntime = { version = "0.0.14", path = "/home/user/onnxruntime-rs/onnxruntime" }
 #handle idiomatic error
 anyhow = {version = "1", features = ["backtrace"]}
 ndarray = "0.15"
