@@ -12,9 +12,6 @@ pub struct BoxInfo{
 
 impl Eq  for BoxInfo{}
 
-// TODO constants to a launch file
-const IMAGE_PATH: &str = "uav_view.jpg";
-
 impl Ord for BoxInfo{
     fn cmp(&self, other: &Self) -> Ordering {
 
