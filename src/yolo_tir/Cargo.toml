@@ -13,8 +13,8 @@ path = "src/lib.rs"
 
 # EXECUTABLE CONFIGUTATION
 [[bin]]
-name = "image_publisher"
-path = "src/img_publisher.rs"
+name = "detection_pub"
+path = "src/detect_pub.rs"
 
 # LIBRARY REFERENCE
 [dependencies]

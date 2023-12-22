@@ -80,7 +80,7 @@ impl<'a> YoloTir<'a> {
         self.img_msg.lock().unwrap().clone().unwrap()
 
     }
-    pub fn publish(&self, output_vec:Vec<OrtOwnedTensor<f32, IxDyn>>, ratio_w:f32, ratio_h:f32, infer_info: Arc<InferenceInfo> ) -> Result<(), Box<dyn std::error::Error + '_>>{
+    pub fn publish(&self, output_vec:Vec<OrtOwnedTensor<f32, IxDyn>>, ratio_w:f32, ratio_h:f32, infer_info: Arc<InferenceInfo> )  -> Result<(), rclrs::RclrsError> {
 
         let mut box_list = Vec::<BoxInfo>::new();
 
@@ -95,6 +95,8 @@ impl<'a> YoloTir<'a> {
                 let exp_array = output_vec[0].slice(s![0, n, self.cls_idx_offset..]).mapv(f32::exp);
                 // println!("{}", exp_array);
                 let prob_array = &exp_array/ exp_array.sum();
+
+                // throw not used 'cuz data integrity check already done
                 let best_idx:usize=  prob_array.argmax().unwrap();
                 let best_label_score = *prob_array.max().unwrap();
                 // println!("{}", prob_array);
@@ -116,7 +118,20 @@ impl<'a> YoloTir<'a> {
 
         // nms suppression
         let bboxes =  BoxInfo::nms(box_list, self.nms_threshold);
+        let detections = self.pack_bbox(bboxes);
 
+        let array_msg = Detection2DArray{
+            header: Default::default(),
+            detections
+        };
+
+        self.publisher.publish(&array_msg)?;
+
+        Ok(())
+        
+
+    }
+    fn pack_bbox(&self, bboxes: Vec<BoxInfo>) -> Vec<Detection2D> {
         let mut detections = Vec::<Detection2D>::with_capacity(bboxes.len());
 
         for bbox in bboxes{
@@ -155,17 +170,8 @@ impl<'a> YoloTir<'a> {
             detections.push(item);
         }
 
-
-        let array_msg = Detection2DArray{
-            header: Default::default(),
-            detections
-        };
-
-        self.publisher.publish(&array_msg);
-        
-        Ok(())
+        detections
     }
-
     pub fn process_image(img_msg: ImageMsg, infer_info: Arc<InferenceInfo>) -> Vec<ndarray::Array::<f32,IxDyn>>{
         // easiest way to create an array
         // size is [batch, channel, width, height]
@@ -269,6 +275,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let ratio_h= (img_msg.height/infer_info.in_height) as f32;
 
                 clone_infer.publish(output_vec, ratio_h, ratio_w, infer_info.clone());
+
             }
             else{
                 println!("WARNING: No valid data received");
@@ -277,7 +284,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
     });
-    rclrs::spin(yolo_infer.node.clone());
+    rclrs::spin(yolo_infer.node.clone())?;
 
     Ok(())
 }
