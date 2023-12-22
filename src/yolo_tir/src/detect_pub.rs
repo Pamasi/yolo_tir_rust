@@ -26,6 +26,7 @@ struct YoloTir<'a>{
     img_msg: Arc< Mutex< Option<ImageMsg> > >,
     subscriber:Arc< rclrs::Subscription<ImageMsg> > ,
     publisher: Arc< rclrs::Publisher<Detection2DArray> >,
+    pub model_path: Arc<str>
 }
 
 
@@ -37,15 +38,35 @@ struct InferenceInfo {
     pub input0_shape: Vec<usize>,
 }
 impl<'a> YoloTir<'a> {
-    pub fn new(name: &str, context: &rclrs::Context, sub_topic: &str, pub_topic: &str,
-                conf_score: f32, nms_threshold: f32,
-                conf_idx: usize, cls_idx_offset: usize) -> Result<Self,  Box<dyn std::error::Error>> {
+    pub fn new(name: &str, context: &rclrs::Context) -> Result<Self,  Box<dyn std::error::Error>> {
 
 
         let node = rclrs::Node::new(context, name)?;
 
-        let publisher =  node.create_publisher::<Detection2DArray>(pub_topic, rclrs::QOS_PROFILE_DEFAULT)?;
+        // declare parameter
+        let empty_str: &str = "/";
 
+        // Convert the string slice to Arc<str>
+        let empty_str_default: Arc<str> = Arc::from(empty_str);
+
+        node.use_undeclared_parameters().set("image_topic", empty_str_default.clone()).unwrap();
+        node.use_undeclared_parameters().set::<Arc<str>>("detection_topic", empty_str_default.clone()).unwrap();
+        node.use_undeclared_parameters().set::<Arc<str>>("model_path", empty_str_default.clone()).unwrap();
+        node.use_undeclared_parameters().set("nms_threshold", 0.25).unwrap();
+        node.use_undeclared_parameters().set("conf_threshold",0.45).unwrap() ;
+        node.use_undeclared_parameters().set("conf_idx", 4).unwrap();
+        node.use_undeclared_parameters().set("cls_idx_offset", 5).unwrap();
+       
+        let img_topic = node.use_undeclared_parameters().get::<Arc<str>>("image_topic").unwrap();
+        let det_topic = node.use_undeclared_parameters().get::<Arc<str>>("detection_topic").unwrap();
+        let model_path = node.use_undeclared_parameters().get::<Arc<str>>("model_path").unwrap();
+        let nms_threshold = node.use_undeclared_parameters().get::<f64>("nms_threshold").unwrap() as f32;
+        let conf_score = node.use_undeclared_parameters().get::<f64>("conf_threshold").unwrap() as f32;
+        let conf_idx = node.use_undeclared_parameters().get::<f64>("conf_idx").unwrap() as usize;
+        let cls_idx_offset = node.use_undeclared_parameters().get::<i64>("cls_idx_offset").unwrap() as usize;
+
+
+        let publisher =  node.create_publisher::<Detection2DArray>(&img_topic[..], rclrs::QOS_PROFILE_DEFAULT)?;
 
 
         // clone to handle data-transfer between subscriber and publisher
@@ -53,14 +74,14 @@ impl<'a> YoloTir<'a> {
         let data_sub= Arc::clone(&img_msg);
 
         let subscriber= node.create_subscription::<ImageMsg, _>(
-                sub_topic,
+                &det_topic[..],
                 rclrs::QOS_PROFILE_DEFAULT,
                 move |msg: ImageMsg| {
                     *data_sub.lock().unwrap() = Some(msg); 
                 }
             )?;
 
- 
+  
         Ok(Self{
             class_label: ["person","bike","car","other vehicle"],
             conf_score,
@@ -70,7 +91,8 @@ impl<'a> YoloTir<'a> {
             node,
             img_msg,
             subscriber,
-            publisher
+            publisher,
+            model_path
         })
     }
 
@@ -207,11 +229,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
     let context = rclrs::Context::new(std::env::args())?;
-    let yolo_infer = Arc::new(YoloTir::new("yolo_tir_node", &context,"/tir/image", "/tir/detection",
-                                        0.25, 0.45, 
-                                        4, 5)?);
+    let yolo_infer = Arc::new(YoloTir::new("yolo_tir_node", &context)?);
     let clone_infer= Arc::clone(&yolo_infer);
-
+ 
 
     // spawn a thread to publish data
     std::thread::spawn(move || -> Result<(), Box<dyn std::error::Error + Send>> {
@@ -225,7 +245,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .new_session_builder().unwrap()
             .with_optimization_level(GraphOptimizationLevel::Basic).unwrap()
             .with_number_threads(1).unwrap()
-            .with_model_from_file("param/best_seq_learn.onnx").unwrap();
+            .with_model_from_file(&clone_infer.model_path[..]).unwrap();
     
         
         let input0_shape: Vec<usize> = session.inputs[0].dimensions().map(|d| d.unwrap()).collect();

@@ -27,8 +27,8 @@ sensor_msgs = "*"
 
 # OTHER
 # change the path according to your   src
-onnxruntime-sys= { version = "0.0.14", path = "/home/user/onnxruntime-rs/onnxruntime-sys" }
-onnxruntime = { version = "0.0.14", path = "/home/user/onnxruntime-rs/onnxruntime" }
+onnxruntime-sys= { version = "0.0.14", path = "/home/user/library/onnxruntime-rs/onnxruntime-sys" }
+onnxruntime = { version = "0.0.14", path = "/home/user/library/onnxruntime-rs/onnxruntime" }
 #handle idiomatic error
 anyhow = {version = "1", features = ["backtrace"]}
 ndarray = "0.15"
@@ -38,3 +38,6 @@ image = "0.24"
 show-image = { version = "0.13", features = [ "image", "raqote" ] }
 ureq = "2.1"
 tracing = "0.1"
+
+[package.metadata.ros]
+install_to_share = ["launch"]
