@@ -22,7 +22,6 @@ struct YoloTir<'a>{
     nms_threshold: f32,
     conf_idx: usize,
     cls_idx_offset: usize,
-    //session: Session<'a>,
     node: Arc<rclrs::Node>,
     img_msg: Arc< Mutex< Option<ImageMsg> > >,
     subscriber:Arc< rclrs::Subscription<ImageMsg> > ,
@@ -68,7 +67,6 @@ impl<'a> YoloTir<'a> {
             nms_threshold,
             conf_idx,
             cls_idx_offset,
-            //session,
             node,
             img_msg,
             subscriber,
@@ -203,23 +201,9 @@ impl<'a> YoloTir<'a> {
 
 }
 
-// impl<'a> Drop for YoloTir<'a>{
-//     fn drop(&mut self){
-//         drop(self.session);
-//     }
-// }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let environment = Environment::builder()
-    // .with_name("inference")
-    // .with_log_level(LoggingLevel::Verbose)
-    // .build()?;
 
-    // let session =  Arc::new(Mutex::new(environment
-    //     .new_session_builder()?
-    //     .with_optimization_level(GraphOptimizationLevel::Basic)?
-    //     .with_number_threads(1)?
-    //     .with_model_from_file("param/best_seq_learn.onnx")?));
 
 
     let context = rclrs::Context::new(std::env::args())?;
