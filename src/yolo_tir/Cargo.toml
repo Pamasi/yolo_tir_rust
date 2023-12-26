@@ -16,6 +16,11 @@ path = "src/lib.rs"
 name = "detection_pub"
 path = "src/detect_pub.rs"
 
+[[bin]]
+name = "fake_img_pub"
+path = "src/fake_img_pub.rs"
+
+
 # LIBRARY REFERENCE
 [dependencies]
 # ROS
@@ -24,7 +29,7 @@ rosidl_runtime_rs = "*"
 std_msgs = "*"
 vision_msgs = "*"
 sensor_msgs = "*"
-
+builtin_interfaces="*"
 # OTHER
 # change the path according to your   src
 onnxruntime-sys= { version = "0.0.14", path = "/home/user/library/onnxruntime-rs/onnxruntime-sys" }
@@ -35,9 +40,8 @@ ndarray = "0.15"
 ndarray-stats = "*"
 tracing-subscriber = { version = "0.3", default-features = false, features = [ "env-filter", "fmt" ] }
 image = "0.24"
-show-image = { version = "0.13", features = [ "image", "raqote" ] }
 ureq = "2.1"
-tracing = "0.1"
+#tracing = "0.1"
 
 [package.metadata.ros]
 install_to_share = ["launch"]
