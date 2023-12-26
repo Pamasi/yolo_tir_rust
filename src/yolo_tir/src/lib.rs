@@ -104,3 +104,46 @@ impl BoxInfo{
 }
 
 
+// unit-test
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_width(){
+        let bbox = BoxInfo::new(1.0, 2.0, 3.0, 5.0, 0.40, 0);
+
+        assert_eq!(bbox.width(), 3.0);
+    }
+
+    #[test]
+    fn test_height(){
+        let bbox = BoxInfo::new(1.0, 2.0, 3.0, 5.0, 0.40, 0);
+
+        assert_eq!(bbox.height(), 2.0);
+    }
+
+    #[test]
+    fn nms_distant_boxes(){
+        let mut bbox_vec = vec![ BoxInfo::new(0.0,   0.0, 5.0, 10.0, 0.40, 0),
+                                BoxInfo::new(15.0,  0.0, 30.0, 20.0, 0.20, 0),
+                                BoxInfo::new(100.0,  150.0, 120.0, 200.0, 0.40, 0),
+                                BoxInfo::new(180.0,  150.0, 200.0, 200.0, 0.40, 0)
+        ];
+
+        let filtered_bbox = BoxInfo::nms(bbox_vec, 0.2);
+
+        assert_eq!(filtered_bbox, bbox_vec);
+    }
+
+    fn nms_overlapping_boxes(){
+        let mut bbox_vec = vec![ BoxInfo::new(0.0,   0.0, 50.0, 50.0, 0.40, 0),
+                                BoxInfo::new(10.0,  1.0, 50.0, 50.0, 0.20, 1),
+                                BoxInfo::new(0.0,  0.0, 100.0, 200.0, 0.50, 0)
+        ];
+
+        let filtered_bbox = BoxInfo::nms(bbox_vec, 0.2);
+        let correct_bbox = vec![BoxInfo::new(0.0,  0.0, 100.0, 200.0, 0.50, 0)];
+        assert_eq!(filtered_bbox, correct_bbox);
+    }
+}
