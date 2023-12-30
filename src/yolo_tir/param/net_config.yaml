@@ -1,7 +1,6 @@
 inference_node:
   ros__parameters:
     image_topic: "/tir/image"
-    image_path: "/home/user/workspace/yolo_tir_rust/src/yolo_tir/param/uav_view.jpg"
     model_path:  "/home/user/workspace/yolo_tir_rust/src/yolo_tir/param/best_seq_learn.onnx"
     detection_topic: "/tir/detection"
     nms_threshold:    0.45 
