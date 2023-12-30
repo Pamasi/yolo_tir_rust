@@ -44,4 +44,4 @@ ureq = "2.1"
 #tracing = "0.1"
 
 [package.metadata.ros]
-install_to_share = ["launch"]
+install_to_share = ["launch", "param"]
