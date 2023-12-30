@@ -102,6 +102,14 @@ ROS 2 package based on Rust to detect object from thermal cameras.
 This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
 
+### Prerequisites
+
+This is an example of how to list things you need to use the software and how to install them.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
+
 ### Installation
 
 1. Install  [ros2_rust](https://github.com/ros2-rust/ros2_rust)
