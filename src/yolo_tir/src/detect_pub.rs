@@ -16,8 +16,8 @@ use vision_msgs::msg::{BoundingBox2D, Detection2D, Detection2DArray,
     Point2D, Pose2D };
 
 
-struct YoloTir<'a>{    
-    class_label: [&'a str; 4],
+struct YoloTir{    
+    class_label: Arc<[Arc<str>]>,
     conf_score : f32,
     nms_threshold: f32,
     conf_idx: usize,
@@ -37,7 +37,7 @@ struct InferenceInfo {
     pub n_proposal: usize,
     pub input0_shape: Vec<usize>,
 }
-impl<'a> YoloTir<'a> {
+impl YoloTir {
     pub fn new(name: &str, context: &rclrs::Context) -> Result<Self,  Box<dyn std::error::Error>> {
 
 
@@ -47,34 +47,75 @@ impl<'a> YoloTir<'a> {
         let empty_str: &str = "/";
 
         // Convert the string slice to Arc<str>
-        let empty_str_default: Arc<str> = Arc::from(empty_str);
-
-        node.use_undeclared_parameters().set("image_topic", empty_str_default.clone()).unwrap();
-        node.use_undeclared_parameters().set::<Arc<str>>("detection_topic", empty_str_default.clone()).unwrap();
-        node.use_undeclared_parameters().set::<Arc<str>>("model_path", empty_str_default.clone()).unwrap();
-        node.use_undeclared_parameters().set("nms_threshold", 0.25).unwrap();
-        node.use_undeclared_parameters().set("conf_threshold",0.45).unwrap() ;
-        node.use_undeclared_parameters().set("conf_idx", 4).unwrap();
-        node.use_undeclared_parameters().set("cls_idx_offset", 5).unwrap();
-       
-        let img_topic = node.use_undeclared_parameters().get::<Arc<str>>("image_topic").unwrap();
-        let det_topic = node.use_undeclared_parameters().get::<Arc<str>>("detection_topic").unwrap();
-        let model_path = node.use_undeclared_parameters().get::<Arc<str>>("model_path").unwrap();
-        let nms_threshold = node.use_undeclared_parameters().get::<f64>("nms_threshold").unwrap() as f32;
-        let conf_score = node.use_undeclared_parameters().get::<f64>("conf_threshold").unwrap() as f32;
-        let conf_idx = node.use_undeclared_parameters().get::<f64>("conf_idx").unwrap() as usize;
-        let cls_idx_offset = node.use_undeclared_parameters().get::<i64>("cls_idx_offset").unwrap() as usize;
+        let empty_str_default: Arc<str> = Arc::from("/invalid");
 
 
-        let publisher =  node.create_publisher::<Detection2DArray>(&img_topic[..], rclrs::QOS_PROFILE_DEFAULT)?;
+        // parameter must declared, use_undeclared_parameter().set(..) is wrong
+        // because it overrides the launch file value (see https://github.com/ros2-rust/ros2_rust/blob/main/rclrs/src/parameter.rs)
+        // once defined argument are not modified for consistency issue
+        let image_topic = node.declare_parameter("image_topic")
+                                .default(empty_str_default.clone())
+                                .mandatory()
+                                .unwrap().get();
+
+        let detection_topic = node.declare_parameter("detection_topic")
+                                .default(empty_str_default.clone())
+                                .mandatory()
+                                .unwrap().get();
+
+
+        let model_path = node.declare_parameter("model_path")
+                                    .default(empty_str_default.clone())
+                                    .mandatory()
+                                    .unwrap().get();
+
+        let nms_threshold  = node.declare_parameter("nms_threshold")
+                                    .default(0.50)
+                                    .mandatory()
+                                    .unwrap().get() as f32;
+
+        let conf_score = node.declare_parameter("conf_score")
+                                .default(0.5)
+                                .mandatory()
+                                .unwrap().get() as f32;
+
+        let conf_idx = node.declare_parameter("conf_idx")
+                                .default(4)
+                                .mandatory()
+                                .unwrap().get() as usize;
+                     
+        let cls_idx_offset= node.declare_parameter("cls_idx_offset")
+                                .default(5)
+                                .mandatory()
+                                .unwrap().get() as usize;
+
+        let classes = node.declare_parameter("classes")
+                            .default_string_array(["person","bike","car","other vehicle"])
+                            .mandatory()
+                            .unwrap().get();                  
+        // assert just for the debug
+        //assert_eq!(&image_topic[..], "/tir/image");
+        //assert_eq!(&detection_topic[..], "/tir/detection");
+
+        // sanity check
+        assert!(conf_score>0.0, "Confidence score must greater than 0");
+        assert!(nms_threshold>0.0, "Confidence score must greater than 0");
+        assert!(conf_idx>0, "Confidence idx cannot be negative");
+        assert!(cls_idx_offset>0, "Confidence idx offset cannot be negative");
+        assert!(classes.len()>0, "Number of classes MUST be greater than 0");
+
+        // check that it is a onnx file
+        assert_eq!(&model_path[(model_path.len()-5)..model_path.len()], ".onnx");
+
+        let publisher =  node.create_publisher::<Detection2DArray>(&detection_topic[..], rclrs::QOS_PROFILE_DEFAULT)?;
 
 
         // clone to handle data-transfer between subscriber and publisher
-        let img_msg = Arc::new(Mutex::new(None));  // (3)
+        let img_msg = Arc::new(Mutex::new(None));  
         let data_sub= Arc::clone(&img_msg);
 
         let subscriber= node.create_subscription::<ImageMsg, _>(
-                &det_topic[..],
+                &image_topic[..],
                 rclrs::QOS_PROFILE_DEFAULT,
                 move |msg: ImageMsg| {
                     *data_sub.lock().unwrap() = Some(msg); 
@@ -83,7 +124,7 @@ impl<'a> YoloTir<'a> {
 
   
         Ok(Self{
-            class_label: ["person","bike","car","other vehicle"],
+            class_label:classes,
             conf_score,
             nms_threshold,
             conf_idx,
@@ -96,8 +137,8 @@ impl<'a> YoloTir<'a> {
         })
     }
 
-    pub fn get_data(&self) -> ImageMsg{
-        self.img_msg.lock().unwrap().clone().unwrap()
+    pub fn get_data(&self) -> Option<ImageMsg>{
+        self.img_msg.lock().unwrap().clone()
 
     }
     pub fn publish(&self, output_vec:Vec<OrtOwnedTensor<f32, IxDyn>>, ratio_w:f32, ratio_h:f32, infer_info: Arc<InferenceInfo> )  -> Result<(), rclrs::RclrsError> {
@@ -200,17 +241,26 @@ impl<'a> YoloTir<'a> {
         //assert!(sensor_msgs::image_encodings::isMono(img_msg.encoding));
         assert!(img_msg.encoding=="mono8");
 
+        let mut offset = 0;
+      
+  
+        let parser_endian = match img_msg.is_bigendian {
+            1 => u8::from_le,
+            _ => u8::from_be
+        };
 
+        //let  row_step = img_msg.step;
+        //assert_eq!(img_msg.width, row_step, "step is {}", row_step);
+        //println!("data len{}", img_msg.data.len());
 
         // normalize img
-        
-        for i in 0..img_msg.width{
-            let offset = i*(img_msg.width-1);
-            for j in 0..img_msg.height{
+        for i in 0..img_msg.height{
+            for j in 0..img_msg.width{
                 let idx = (offset+j) as usize;
-                let pixel_norm = (img_msg.data[idx] as f32) / 255.0;
-                img_data[IxDyn(&[0,0,i as usize ,j as usize ])] = pixel_norm;
+                let pixel_norm = (parser_endian(img_msg.data[idx]) as f32) / 255.0;
+                img_data[IxDyn(&[0,0,j as usize ,i as usize ])] = pixel_norm;
             }
+            offset=i*img_msg.height;
     
         }
 
@@ -257,7 +307,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let n_proposal = output0_shape[1];
 
         // update info for inference
-
         let infer_info = Arc::new(InferenceInfo{
             in_width,
             in_height,
@@ -266,25 +315,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
 
         loop {
-            use std::time::Duration;
-            std::thread::sleep(Duration::from_millis(1000));
+            // uncomment for easy-debug
+            // use std::time::Duration;
+            // std::thread::sleep(Duration::from_millis(1000));
+
             // get data
-            let img_msg = clone_infer.get_data().clone();
-            let input_tensor_values = YoloTir::process_image(img_msg.clone(), infer_info.clone());
-            // perform the inference
-            let tmp_vec= session.run(input_tensor_values);
-            if  tmp_vec.is_ok() {
-                let output_vec = tmp_vec.unwrap();
-                let ratio_w = (img_msg.width/infer_info.in_width) as f32;
-                let ratio_h= (img_msg.height/infer_info.in_height) as f32;
-
-                clone_infer.publish(output_vec, ratio_h, ratio_w, infer_info.clone());
-
+            let msg = clone_infer.get_data();
+            if msg.is_none(){
+                println!("No data received!")
             }
             else{
-                println!("WARNING: No valid data received");
+                let img_msg = msg.unwrap().clone();
+                let input_tensor_values = YoloTir::process_image(img_msg.clone(), infer_info.clone());
+                // perform the inference
+                let tmp_vec= session.run(input_tensor_values);
+                if  tmp_vec.is_ok() {
+                    let output_vec = tmp_vec.unwrap();
+                    let ratio_w = (img_msg.width/infer_info.in_width) as f32;
+                    let ratio_h= (img_msg.height/infer_info.in_height) as f32;
+
+                    clone_infer.publish(output_vec, ratio_h, ratio_w, infer_info.clone());
+
+                }
+                else{
+                    println!("WARNING: No valid data received");
+                }
             }
-    
+        
         }
 
     });

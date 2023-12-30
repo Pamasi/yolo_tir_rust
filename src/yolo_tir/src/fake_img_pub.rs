@@ -15,44 +15,58 @@ fn main() -> Result<(), Error> {
     let node = rclrs::create_node(&context, "fake_image_publisher")?;
     let empty_str_default: Arc<str> = Arc::from("");
 
-    node.use_undeclared_parameters().set("image_topic", empty_str_default.clone()).unwrap();
-    node.use_undeclared_parameters().set("image_path", empty_str_default.clone()).unwrap();
-    let img_topic = node.use_undeclared_parameters().get::<Arc<str>>("image_topic").unwrap();
+    let image_topic = node.declare_parameter("image_topic")
+                            .default(empty_str_default.clone())
+                            .mandatory()
+                            .unwrap().get();
 
-    let publisher =
-        node.create_publisher::<ImageMsg>(&img_topic[..], rclrs::QOS_PROFILE_DEFAULT)?;
+    let image_path = node.declare_parameter("image_path")
+                        .default(empty_str_default.clone())
+                        .mandatory()
+                        .unwrap().get();
+    // no need for str sanity check: already done by rcls
 
-    let mut message = std_msgs::msg::String::default();
+    let publisher = node.create_publisher::<ImageMsg>(&image_topic[..], rclrs::QOS_PROFILE_DEFAULT)?;
+
+
 
     let mut frame_id: u32 = 1;
 
-    let  NANO_CONV = 10^9;
+    let  nano_conv = 10^9;
 
     while context.ok() {
-        let img_path = node.use_undeclared_parameters().get::<Arc<str>>("image_path").unwrap();
-        let img_buf = image::open(&img_path[..])?.grayscale();
+
+        let img_buf = image::open(&image_path[..])?.grayscale();
         let nsec = node.get_clock().now().nsec;
 
         let header = HeaderMsg{
             stamp: builtin_interfaces::msg::Time{
-                sec: (nsec*NANO_CONV) as i32,
+                sec: (nsec*nano_conv) as i32,
                 nanosec: nsec as u32
             },
             frame_id: frame_id.to_string()
         };
 
+        // check: https://docs.ros2.org/latest/api/sensor_msgs/msg/Image.html
         let height = img_buf.height() as u32;
         let width = img_buf.width() as u32;
         let encoding = "mono8".to_string();
-        let step = height*width;
+        
+        let step = height*4;
         let data = img_buf.as_bytes().to_vec();
+
+        let mut is_bigendian:u8  = 1;
+
+        if cfg!(target_endian = "little"){
+            is_bigendian = 0;
+        }
 
         let message = ImageMsg{
             header,
             height,
             width,
             encoding,
-            is_bigendian: 1,
+            is_bigendian,
             step,
             data
 
