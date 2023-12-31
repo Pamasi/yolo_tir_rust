@@ -1,5 +1,5 @@
 use anyhow::{Error,Result};
-
+use std::time::{Duration, SystemTime};
 use std::env;
 use std::sync::Arc;
 use image;
@@ -32,7 +32,8 @@ fn main() -> Result<(), Error> {
 
     let mut frame_id: u32 = 1;
 
-    let  nano_conv = 10^9;
+
+
 
     while context.ok() {
 
@@ -41,7 +42,7 @@ fn main() -> Result<(), Error> {
 
         let header = HeaderMsg{
             stamp: builtin_interfaces::msg::Time{
-                sec: (nsec*nano_conv) as i32,
+                sec:  (nsec/1_000_000_000 ) as i32, 
                 nanosec: nsec as u32
             },
             frame_id: frame_id.to_string()
@@ -74,7 +75,7 @@ fn main() -> Result<(), Error> {
 
         publisher.publish(&message)?;
         frame_id += 1;
-        std::thread::sleep(std::time::Duration::from_millis(500));
+        //std::thread::sleep(std::time::Duration::from_millis(500));
     }
     Ok(())
 }

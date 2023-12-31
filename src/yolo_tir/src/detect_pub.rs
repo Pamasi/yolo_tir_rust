@@ -39,6 +39,8 @@ struct InferenceInfo {
 }
 impl YoloTir {
     pub fn new(name: &str, context: &rclrs::Context) -> Result<Self,  Box<dyn std::error::Error>> {
+   
+
 
 
         let node = rclrs::Node::new(context, name)?;
@@ -150,8 +152,10 @@ impl YoloTir {
         for n in 0..infer_info.n_proposal {
 
             let obj_score: f32 = output_vec[0][[0,n,self.conf_idx]];
-
+         
+            
             if obj_score > self.conf_score {
+                //println!("obj_score is  {}", obj_score);
                 // softmax
                 let exp_array = output_vec[0].slice(s![0, n, self.cls_idx_offset..]).mapv(f32::exp);
                 // println!("{}", exp_array);
@@ -177,6 +181,7 @@ impl YoloTir {
             }
         };
 
+        //println!("number of proposal are {}", box_list.len());
         // nms suppression
         let bboxes =  BoxInfo::nms(box_list, self.nms_threshold);
         let detections = self.pack_bbox(bboxes);
@@ -240,9 +245,6 @@ impl YoloTir {
 
         //assert!(sensor_msgs::image_encodings::isMono(img_msg.encoding));
         assert!(img_msg.encoding=="mono8");
-
-        let mut offset = 0;
-      
   
         let parser_endian = match img_msg.is_bigendian {
             1 => u8::from_le,
@@ -252,15 +254,18 @@ impl YoloTir {
         //let  row_step = img_msg.step;
         //assert_eq!(img_msg.width, row_step, "step is {}", row_step);
         //println!("data len{}", img_msg.data.len());
-
+        //println!("height={}\twidth={}", img_msg.height, img_msg.width);
         // normalize img
         for i in 0..img_msg.height{
             for j in 0..img_msg.width{
-                let idx = (offset+j) as usize;
+                let idx = (i*img_msg.height+j) as usize;
+
                 let pixel_norm = (parser_endian(img_msg.data[idx]) as f32) / 255.0;
+                // println!("pixel after {} and before {} parsing ", img_msg.data[idx] as f32, parser_endian(img_msg.data[idx]) as f32);
+                // println!("pixel after {} and before {} normalization ", parser_endian(img_msg.data[idx]) as f32, pixel_norm);
                 img_data[IxDyn(&[0,0,j as usize ,i as usize ])] = pixel_norm;
             }
-            offset=i*img_msg.height;
+            
     
         }
 
