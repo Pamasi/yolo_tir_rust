@@ -94,36 +94,56 @@ ROS 2 package based on Rust to detect object from thermal cameras.
 
 This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
-
+If you  want to use docker skip the installation process.
 ### Installation
 
 1. Install  [ros2_rust](https://github.com/ros2-rust/ros2_rust)
-
-2. Clone the onnxruntime-rs repo
+3. Create  workspace and library folder in your home directory
    ```sh
-   git clone https://github.com/nbigaouette/onnxruntime-rs
+   mkdir ~/workspace;  mkdir ~/library;
+   ```
+2. Clone the onnxruntime-rs repo into the folder ~/library
+   ```sh
+   git clone https://github.com/nbigaouette/onnxruntime-rs.git
 
    ```
 3. Change the [build.rs](https://github.com/nbigaouette/onnxruntime-rs/blob/master/onnxruntime-sys/build.rs) according to your ONNX-Runtime release (here we use 1.13.1)
-4. Download [ONNX-Runtime library](https://github.com/microsoft/onnxruntime/releases) (here we use 1.13.1)
-2. Clone the repo
+3. Download [ONNX-Runtime library](https://github.com/microsoft/onnxruntime/releases) (here we use 1.13.1) into the folder ~/library
+4. Clone the repo into the folder ~/workspace
    ```sh
-   git clone https://github.com/Pamasi/yolo_tir_rust
+   git clone https://github.com/Pamasi/yolo_tir_rust.git
 
    ```
-3. Build the ROS 2 workspace
+5. Clone the vision_msgs into  ~/workspace/yolo_tir_rust/src
    ```sh
-   colcon build 
+   git clone https://github.com/ros-perception/vision_msgs.git
+
    ```
+
+### Docker 
+5. Install [docker](https://docs.docker.com/engine/install/)
+6. Install [docker-compose](https://docs.docker.com/compose/install/)
+
+8. Build the image
+   ```sh
+   docker build . -t ros2_rust
+
+   ```
+9. Activate docker-compose in the background
+   ```sh
+   docker-compose up -d
+   ```
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-#TODO
+Build the ROS 2 workspace
+   ```sh
+   colcon build 
+   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -133,7 +153,7 @@ To get a local copy up and running follow these simple example steps.
 ## Roadmap
 
 - [ ] Testing
-- [ ] Docker integration
+- [X] Docker integration
 
 
 See the [open issues](https://github.com/Pamasi/yolo_tir_rust/issues) for a full list of proposed features (and known issues).
