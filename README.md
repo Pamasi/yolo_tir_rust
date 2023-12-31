@@ -119,10 +119,20 @@ If you  want to use docker skip the installation process.
    git clone https://github.com/ros-perception/vision_msgs.git
 
    ```
+6. Import ros2 (for docker use, first follow Docker section)
+   ```sh
+   vcs import src < src/ros2_rust/ros2_rust_humble.repos
+   ```
+Build the ROS 2 workspace
+   ```sh
+   colcon build --package-select yolo_tir
+   ```
+
 
 ### Docker 
 1. Install [docker](https://docs.docker.com/engine/install/)
 2. Install [docker-compose](https://docs.docker.com/compose/install/)
+
 
 3. Build the image
    ```sh
@@ -140,9 +150,13 @@ If you  want to use docker skip the installation process.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Build the ROS 2 workspace
+1. Source the environment first (see file for more info)
    ```sh
-   colcon build 
+   ros_entrypoint.sh
+   ```
+2. Build the ROS 2 workspace
+   ```sh
+   colcon build --package-select yolo_tir
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
