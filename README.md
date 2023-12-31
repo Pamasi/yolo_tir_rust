@@ -121,15 +121,15 @@ If you  want to use docker skip the installation process.
    ```
 
 ### Docker 
-5. Install [docker](https://docs.docker.com/engine/install/)
-6. Install [docker-compose](https://docs.docker.com/compose/install/)
+1. Install [docker](https://docs.docker.com/engine/install/)
+2. Install [docker-compose](https://docs.docker.com/compose/install/)
 
-8. Build the image
+3. Build the image
    ```sh
    docker build . -t ros2_rust
 
    ```
-9. Activate docker-compose in the background
+4. Activate docker-compose in the background
    ```sh
    docker-compose up -d
    ```
