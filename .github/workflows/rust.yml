@@ -66,8 +66,11 @@ jobs:
         git clone https://github.com/ros-perception/vision_msgs.git
         git clone https://github.com/nbigaouette/onnxruntime-rs.git
         sudo mkdir /library
-        sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.13.1/onnxruntime-linux-x64-1.13.1.tgz /library
-        sudo tar -xf onnxruntime-linux-x64-1.13.1.tgz
+        sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.13.1/onnxruntime-linux-x64-1.13.1.tgz 
+        sudo mv onnxruntime-linux-x64-1.13.1.tgz  /library/*
+        sudo chdir /library
+        sudo tar -xf /onnxruntime-linux-x64-1.13.1.tgz
+        cd ${{ steps.build.outputs.ros-workspace-directory-name }}
 
     - name: Check formatting of Rust packages
       run: |
