@@ -69,7 +69,7 @@ jobs:
         sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.13.1/onnxruntime-linux-x64-1.13.1.tgz 
         sudo mv onnxruntime-linux-x64-1.13.1.tgz  /library/*
         cd /library
-        sudo tar -xf /onnxruntime-linux-x64-1.13.1.tgz
+        sudo tar -xf  /library/onnxruntime-linux-x64-*.tgz --directory  /library
         cd ${{ steps.build.outputs.ros-workspace-directory-name }}
 
     - name: Check formatting of Rust packages
