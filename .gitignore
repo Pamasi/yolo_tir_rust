@@ -21,3 +21,10 @@ vision_msgs/*
 build/*
 install/*
 log/*
+
+target/*
+*/target/*
+
+*.ts
+*.o
+*.make
