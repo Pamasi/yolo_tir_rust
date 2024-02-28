@@ -4,7 +4,7 @@ ARG ROS_DISTRO=humble
 FROM osrf/ros:humble-desktop-full
 ARG DEBIAN_FRONTEND=noninteractive
 
-MAINTAINER pamasi
+LABEL maintainer="Pamasi paolo.dimasi@outlook"
 # install dependencies
 RUN apt-get update && apt-get install -y \
     curl \
