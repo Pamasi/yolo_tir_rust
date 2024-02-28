@@ -32,8 +32,8 @@ sensor_msgs = "*"
 builtin_interfaces="*"
 # OTHER
 # change the path according to your   src
-onnxruntime-sys= { version = "0.0.14", path = "/home/user/library/onnxruntime-rs/onnxruntime-sys" }
-onnxruntime = { version = "0.0.14", path = "/home/user/library/onnxruntime-rs/onnxruntime" }
+onnxruntime-sys= { version = "0.0.14", path = "/library/onnxruntime-rs/onnxruntime-sys" }
+onnxruntime = { version = "0.0.14", path = "/library/onnxruntime-rs/onnxruntime" }
 #handle idiomatic error
 anyhow = {version = "1", features = ["backtrace"]}
 ndarray = "0.15"
