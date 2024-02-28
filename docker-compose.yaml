@@ -10,7 +10,7 @@ services:
         - SYS_PTRACE
       volumes:
         - ./workspace:/home/user/workspace
-        - ./library:/home/user/library
+        - ./library:/library
         - /tmp/.X11-unix:/tmp/.X11-unix
       environment:
         - DISPLAY=${DISPLAY}
