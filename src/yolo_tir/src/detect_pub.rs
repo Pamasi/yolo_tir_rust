@@ -6,13 +6,16 @@ use ndarray_stats::QuantileExt;
 use std::env;
 use std::sync::{Arc, Mutex};
 
-use onnxruntime::{environment::Environment, session::Session, tensor::ort_owned_tensor::OrtOwnedTensor,
-    GraphOptimizationLevel, LoggingLevel};
+use onnxruntime::{
+    environment::Environment, session::Session, tensor::ort_owned_tensor::OrtOwnedTensor,
+    GraphOptimizationLevel, LoggingLevel,
+};
 
 use sensor_msgs::msg::Image as ImageMsg;
-use vision_msgs::msg::{BoundingBox2D, Detection2D, Detection2DArray, 
-    ObjectHypothesis, ObjectHypothesisWithPose,
-    Point2D, Pose2D};
+use vision_msgs::msg::{
+    BoundingBox2D, Detection2D, Detection2DArray, ObjectHypothesis, ObjectHypothesisWithPose,
+    Point2D, Pose2D,
+};
 
 struct YoloTir {
     class_label: Arc<[Arc<str>]>,
