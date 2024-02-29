@@ -66,7 +66,7 @@ jobs:
         git clone https://github.com/ros-perception/vision_msgs.git
 
         if ! [[ -d /library ]]; then
-          sudo mkdir /library
+          sudo mkdir -p /library/onnxruntime-rs 
           git clone https://github.com/nbigaouette/onnxruntime-rs.git /library/onnxruntime-rs 
           echo "ONNXRUNTIME RUST WRAPPER DIR IS ${ls /library/onnxruntime-rs}"
           sudo wget https://github.com/microsoft/onnxruntime/releases/download/v1.13.1/onnxruntime-linux-x64-1.13.1.tgz 
