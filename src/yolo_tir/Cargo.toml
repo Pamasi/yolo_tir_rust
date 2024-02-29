@@ -1,0 +1,47 @@
+[package]
+name = "yolo_tir"
+version = "0.0.1"
+authors =["Paolo Dimasi <paolo.dimasi@outlook.com>"]
+edition = "2021"
+
+
+# LIBRARY
+[lib]
+# name of the library should be the same of the module
+name = "box_info"
+path = "src/lib.rs"
+
+# EXECUTABLE CONFIGUTATION
+[[bin]]
+name = "detection_pub"
+path = "src/detect_pub.rs"
+
+[[bin]]
+name = "fake_img_pub"
+path = "src/fake_img_pub.rs"
+
+
+# LIBRARY REFERENCE
+[dependencies]
+# ROS
+rclrs = "*"
+rosidl_runtime_rs = "*"
+std_msgs = "*"
+vision_msgs = "*"
+sensor_msgs = "*"
+builtin_interfaces="*"
+# OTHER
+# change the path according to your   src
+onnxruntime-sys= { version = "0.0.14", path = "/library/onnxruntime-rs/onnxruntime-sys" }
+onnxruntime = { version = "0.0.14", path = "/library/onnxruntime-rs/onnxruntime" }
+#handle idiomatic error
+anyhow = {version = "1", features = ["backtrace"]}
+ndarray = "0.15"
+ndarray-stats = "*"
+tracing-subscriber = { version = "0.3", default-features = false, features = [ "env-filter", "fmt" ] }
+image = "0.24"
+ureq = "2.1"
+#tracing = "0.1"
+
+[package.metadata.ros]
+install_to_share = ["launch", "param"]

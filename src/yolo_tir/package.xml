@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model
+        href="http://download.ros.org/schema/package_format3.xsd"
+        schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+    <name>yolo_tir</name>
+    <version>0.0.1</version>
+    <description>Package aims to inference Thermal YOLOv7</description>
+    <maintainer email="paolo.dimasi@outlook.com">Paolo Dimasi</maintainer>
+    <license>Apache License 2.0</license>
+
+    <build_depend>rclrs</build_depend>
+    <build_depend>rosidl_runtime_rs</build_depend>
+    <build_depend>std_msgs</build_depend>
+    <build_depend>vision_msgs</build_depend>
+    <build_depend>sensor_msgs</build_depend>
+    <build_depend>builtin_interfaces</build_depend>
+
+    <exec_depend>rclrs</exec_depend>
+    <exec_depend>rosidl_runtime_rs</exec_depend>
+    <exec_depend>std_msgs</exec_depend>
+    <exec_depend>vision_msgs</exec_depend>
+    <exec_depend>sensor_msgs</exec_depend>
+    <exec_depend>std_msgs</exec_depend>
+    <exec_depend>builtin_interfaces</exec_depend>
+
+    <export>
+        <build_type>ament_cargo</build_type>
+    </export>
+</package>

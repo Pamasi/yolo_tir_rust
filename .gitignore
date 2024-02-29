@@ -12,3 +12,19 @@ Cargo.lock
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+*.cargo
+
+# do not add the ros2 packages on  the repo
+ros2_rust/*
+ros2/*
+vision_msgs/*
+build/*
+install/*
+log/*
+
+target/*
+*/target/*
+
+*.ts
+*.o
+*.make
